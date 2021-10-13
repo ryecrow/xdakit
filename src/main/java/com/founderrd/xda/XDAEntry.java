@@ -198,7 +198,7 @@ class XDAEntry {
         theXDA.seek(position + CLASSTYPE_LENGTH + ENTRYLENGTH_LENGTH
                 + mutableFieldLength);
         next = theNext;
-        XDACommonFunction.writeIntegerAccording2BitsParam(theXDA,
+        Utils.writeIntegerAccording2BitsParam(theXDA,
                 mutableFieldLength, next);
     }
 
@@ -246,15 +246,15 @@ class XDAEntry {
 
     // private void parseNameCount(RandomAccessFile theFileXDA) throws
     // IOException {
-    // nameCount = XDACommonFunction.readInt(theFileXDA);
+    // nameCount = Utils.readInt(theFileXDA);
     // }
 
     ItemData parseOneItemInItemList(DataInputStream itemListStream,
                                     final byte theBitsParam) throws IOException {
         Byte operator = itemListStream.readByte();
-        Long itemOffset = XDACommonFunction
+        Long itemOffset = Utils
                 .readIntegerAccording2BitsParam(itemListStream, theBitsParam);
-        BigInteger nameValueInItemList = XDACommonFunction.readBigInteger(
+        BigInteger nameValueInItemList = Utils.readBigInteger(
                 itemListStream, NAMEVALUE_LENGTH);
         return new ItemData(operator, itemOffset, nameValueInItemList);
     }
@@ -317,13 +317,13 @@ class XDAEntry {
 
     private Vector<NamePathPair> parseNameTable(DataInputStream nameTableStream)
             throws IOException {
-        nameCount = XDACommonFunction.readInt(nameTableStream);
+        nameCount = Utils.readInt(nameTableStream);
         Vector<NamePathPair> nameTable = new Vector<>(nameCount);
         for (int i = 0; i < nameCount; ++i) {
             // ItemInfo in NameTable
-            BigInteger nameValueInNameTable = XDACommonFunction.readBigInteger(
+            BigInteger nameValueInNameTable = Utils.readBigInteger(
                     nameTableStream, NAMEVALUE_LENGTH);
-            String path = XDACommonFunction.readUTF8(nameTableStream,
+            String path = Utils.readUTF8(nameTableStream,
                     PATH_LENGTH);
             nameTable.add(new NamePathPair(path, nameValueInNameTable));
         }
@@ -425,24 +425,24 @@ class XDAEntry {
             throws IOException, XDAException {
         byte[] theClassType = new byte[CLASSTYPE_LENGTH];
         theFileXDA.read(theClassType);
-        if (!XDACommonFunction.compareArray(theClassType, CLASSTYPE_CONTENT))
+        if (!Utils.compareArray(theClassType, CLASSTYPE_CONTENT))
             throw new XDAException(XDAException.INVALID_ENTRY_CLASSTYPE);
     }
 
     private void parseEntryLength(RandomAccessFile theFileXDA)
             throws IOException {
-        entryLength = XDACommonFunction.readInt(theFileXDA);
+        entryLength = Utils.readInt(theFileXDA);
     }
 
     private void parseBSOffset(RandomAccessFile theFileXDA,
                                final byte theBitsParam) throws IOException, XDAException {
-        bsOffset = XDACommonFunction.readIntegerAccording2BitsParam(theFileXDA,
+        bsOffset = Utils.readIntegerAccording2BitsParam(theFileXDA,
                 theBitsParam);
     }
 
     private void parseNext(RandomAccessFile theFileXDA, final byte theBitsParam)
             throws IOException, XDAException {
-        next = XDACommonFunction.readIntegerAccording2BitsParam(theFileXDA,
+        next = Utils.readIntegerAccording2BitsParam(theFileXDA,
                 theBitsParam);
     }
 
@@ -457,7 +457,7 @@ class XDAEntry {
 
     private void parseNameTableLength(RandomAccessFile theFileXDA)
             throws IOException {
-        nameTableLength = XDACommonFunction.readInt(theFileXDA);
+        nameTableLength = Utils.readInt(theFileXDA);
     }
 
     public int getIndex() throws XDAException {

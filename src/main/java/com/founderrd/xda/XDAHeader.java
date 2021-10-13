@@ -17,10 +17,10 @@ class XDAHeader {
 
     private static final int MAGIC_OFFSET = 0;
     private static final int MAGIC_LENGTH = MAGIC.length;
-    private static final int ENTRY_COUNT_OFFSET = MAGIC_LENGTH + 2;
-    private static final int FIRST_ENTRY_OFFSET = ENTRY_COUNT_OFFSET + ENTRY_COUNT_LENGTH + 2;
     private static final int MAGIC_END = 4;
+    private static final int ENTRY_COUNT_OFFSET = MAGIC_LENGTH + 2;
     private static final int ENTRY_COUNT_LENGTH = 4;
+    private static final int FIRST_ENTRY_OFFSET = ENTRY_COUNT_OFFSET + ENTRY_COUNT_LENGTH + 2;
     private byte majorVersion;
     private byte minorVersion;
     private int entryCount;
@@ -66,7 +66,7 @@ class XDAHeader {
                                    long theFirstEntryOffset) throws IOException {
         firstEntryOffset = theFirstEntryOffset;
         theXDAFile.seek(FIRST_ENTRY_OFFSET);
-        XDACommonFunction.writeIntegerAccording2BitsParam(theXDAFile,
+        Utils.writeIntegerAccording2BitsParam(theXDAFile,
                 bitsParam, firstEntryOffset);
     }
 
@@ -141,7 +141,7 @@ class XDAHeader {
 
     private void parseEntryCount(RandomAccessFile fileXDA)
             throws IOException {
-        entryCount = XDACommonFunction.readInt(fileXDA);
+        entryCount = Utils.readInt(fileXDA);
     }
 
     private void parseEntryNameTableType(RandomAccessFile fileXDA)
@@ -181,13 +181,13 @@ class XDAHeader {
             throws IOException, XDAException {
         switch (bitsParam) {
             case 0x02:
-                firstEntryOffset = XDACommonFunction.readShort(fileXDA);
+                firstEntryOffset = Utils.readShort(fileXDA);
                 break;
             case 0x04:
-                firstEntryOffset = XDACommonFunction.readInt(fileXDA);
+                firstEntryOffset = Utils.readInt(fileXDA);
                 break;
             case 0x08:
-                firstEntryOffset = XDACommonFunction.readLong(fileXDA);
+                firstEntryOffset = Utils.readLong(fileXDA);
                 break;
             default:
                 throw new XDAException(XDAException.INVALID_BITSPARAM);
@@ -211,7 +211,7 @@ class XDAHeader {
 
     private void writeEntryCount(RandomAccessFile theXDAFile)
             throws IOException {
-        XDACommonFunction.writeInt(theXDAFile, entryCount);
+        Utils.writeInt(theXDAFile, entryCount);
     }
 
     private void writeEntryNameTableType(RandomAccessFile theXDAFile)
@@ -226,7 +226,7 @@ class XDAHeader {
 
     private void writeFirstEntryOffset(RandomAccessFile theXDAFile)
             throws IOException {
-        XDACommonFunction.writeIntegerAccording2BitsParam(theXDAFile,
+        Utils.writeIntegerAccording2BitsParam(theXDAFile,
                 bitsParam, firstEntryOffset);
     }
 }

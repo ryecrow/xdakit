@@ -101,9 +101,9 @@ class XDAOldHistory extends XDAHistory {
 		fileXDA = theFileXDA;
 		long currentPosition = theFileXDA.getFilePointer();
 		fileXDA.seek(position + ITEM_CHECKSUM_LENGTH);
-		length = XDACommonFunction.readIntegerAccording2BitsParam(theFileXDA,
+		length = Utils.readIntegerAccording2BitsParam(theFileXDA,
 				bitsParam);
-		ecs = XDACommonFunction.readByteTillFlag(theFileXDA,
+		ecs = Utils.readByteTillFlag(theFileXDA,
 				XDADefine.ECS_BUFFER_CAPACITY, XDADefine.ECS_END_FLAG);
 		fileXDA.seek(currentPosition);
 	}
@@ -114,7 +114,7 @@ class XDAOldHistory extends XDAHistory {
 			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
 
 		seek(bitsParam);
-		return XDACommonFunction.copyFromSrcToDst(fileXDA, target, length,
+		return Utils.copyFromSrcToDst(fileXDA, target, length,
 				buffer);
 	}
 
@@ -124,7 +124,7 @@ class XDAOldHistory extends XDAHistory {
 			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
 
 		seek(bitsParam);
-		return XDACommonFunction.copyFromSrcToDst(fileXDA, target, length,
+		return Utils.copyFromSrcToDst(fileXDA, target, length,
 				buffer);
 	}
 
@@ -134,7 +134,7 @@ class XDAOldHistory extends XDAHistory {
 			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
 
 		seek(bitsParam);
-		return XDACommonFunction.copyFromSrcToDst(fileXDA, target, length,
+		return Utils.copyFromSrcToDst(fileXDA, target, length,
 				buffer, checkSum);
 	}
 
@@ -168,7 +168,7 @@ class XDANewHistory extends XDAHistory {
 			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
 
 		maintainedStream.open();
-		long result = XDACommonFunction.copyFromSrcToDst(maintainedStream,
+		long result = Utils.copyFromSrcToDst(maintainedStream,
 				target, buffer);
 		maintainedStream = maintainedStream.nirvana();
 		return result;
@@ -180,7 +180,7 @@ class XDANewHistory extends XDAHistory {
 			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
 
 		maintainedStream.open();
-		long result = XDACommonFunction.copyFromSrcToDst(maintainedStream,
+		long result = Utils.copyFromSrcToDst(maintainedStream,
 				target, buffer);
 		maintainedStream = maintainedStream.nirvana();
 		return result;
@@ -192,7 +192,7 @@ class XDANewHistory extends XDAHistory {
 			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
 
 		maintainedStream.open();
-		long result = XDACommonFunction.copyFromSrcToDst(maintainedStream,
+		long result = Utils.copyFromSrcToDst(maintainedStream,
 				target, buffer, checkSum);
 		maintainedStream = maintainedStream.nirvana();
 		return result;

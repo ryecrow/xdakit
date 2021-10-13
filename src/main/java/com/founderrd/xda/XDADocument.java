@@ -263,14 +263,14 @@ class XDADocument {
 			// 预留checkSum和length位置
 			newfile.seek(writeBackPosition);
 			newfile.writeByte(checkSum[0]);
-			XDACommonFunction.writeIntegerAccording2BitsParam(newfile,
+			Utils.writeIntegerAccording2BitsParam(newfile,
 					bitsParam, length);
 			newfile.write(history.ecs);
 			// 写FileStream
 			length = history.writeTo(newfile, bitsParam, buffer, checkSum);
 			newfile.seek(writeBackPosition);
 			newfile.writeByte(checkSum[0]);
-			XDACommonFunction.writeIntegerAccording2BitsParam(newfile,
+			Utils.writeIntegerAccording2BitsParam(newfile,
 					bitsParam, length);
 			++index;
 		}
@@ -345,13 +345,13 @@ class XDADocument {
 
 		DataOutputStream itemListStream = new DataOutputStream(itemList);
 
-		XDACommonFunction.writeInt(nammTableStream, bSInfos.size());
+		Utils.writeInt(nammTableStream, bSInfos.size());
 		Iterator<BSInfo> iter = bSInfos.iterator();
 		int i = 1;
 		byte[] nmVal = new byte[ENTRY_NAMEVALUE_LENGTH];
 		while (iter.hasNext()) {
 			BSInfo oneBSInfo = iter.next();
-			byte[] val = XDACommonFunction.converIntBigEndian2LittleEndian(i);
+			byte[] val = Utils.converIntBigEndian2LittleEndian(i);
 			int j = 0;
 			for (; j < val.length; ++j)
 				nmVal[j] = val[val.length - j - 1];
@@ -364,7 +364,7 @@ class XDADocument {
 
 			for (BSInfo.FileStreamInfo fileStreamHistory : oneBSInfo.fileStreams) {
 				itemListStream.write(fileStreamHistory.op);
-				XDACommonFunction.writeIntegerAccording2BitsParam(
+				Utils.writeIntegerAccording2BitsParam(
 						itemListStream, bitsParam, fileStreamHistory.offset);
 				itemListStream.write(nmVal);
 			}
@@ -374,9 +374,9 @@ class XDADocument {
 
 		long posMark = newfile.length();
 		newfile.seek(posMark);
-		long nameTableLength = XDACommonFunction.copyFromSrcToDst(nmTableData
+		long nameTableLength = Utils.copyFromSrcToDst(nmTableData
 				.toByteArray(), newfile, md);
-		XDACommonFunction.copyFromSrcToDst(itemListData.toByteArray(), newfile,
+		Utils.copyFromSrcToDst(itemListData.toByteArray(), newfile,
 				md);
 
 		return nameTableLength;
@@ -634,7 +634,7 @@ class XDADocument {
 
 	private void writeEntryLength(RandomAccessFile file, long entryLength)
 			throws IOException {
-		XDACommonFunction.writeInt(file, entryLength);
+		Utils.writeInt(file, entryLength);
 	}
 
 	private long writeEntryNameTableAndItemList(Vector<SaveHelper> saveHelpers,
@@ -659,7 +659,7 @@ class XDADocument {
 		}
 
 		// 先写入namecount
-		XDACommonFunction.writeInt(nameTableOutputStream, saveHelpers.size());
+		Utils.writeInt(nameTableOutputStream, saveHelpers.size());
 
 		byte[] nameValue = new byte[ENTRY_NAMEVALUE_LENGTH];
 		for (SaveHelper saveHelper : saveHelpers) {
@@ -675,7 +675,7 @@ class XDADocument {
 						.get(i);
 				itemListOutputStream
 						.write(saveHelper.itemInfo.histories.get(i).operator);
-				XDACommonFunction.writeIntegerAccording2BitsParam(
+				Utils.writeIntegerAccording2BitsParam(
 						itemListOutputStream, header.getBitsParam(), history
 								.getPosition()
 								- bSPosition);
@@ -683,7 +683,7 @@ class XDADocument {
 			}
 		}
 		itemListOutputStream.write(XDADefine.OPERATOR_END);
-		XDACommonFunction.writeIntegerAccording2BitsParam(itemListOutputStream,
+		Utils.writeIntegerAccording2BitsParam(itemListOutputStream,
 				header.getBitsParam(), 0);
 		int i = 0;
 		nameValue[i++] = (byte) 0x7f;
@@ -697,9 +697,9 @@ class XDADocument {
 		InputStream nameTableInputStream = new FileInputStream(nameTableFile);
 		InputStream itemListInputStream = new FileInputStream(itemListFile);
 
-		long nameTableLength = XDACommonFunction.copyFromSrcToDst(
+		long nameTableLength = Utils.copyFromSrcToDst(
 				nameTableInputStream, xdaDoc, buffer, md);
-		XDACommonFunction.copyFromSrcToDst(itemListInputStream, xdaDoc,
+		Utils.copyFromSrcToDst(itemListInputStream, xdaDoc,
 				buffer, md);
 
 		nameTableInputStream.close();
@@ -712,7 +712,7 @@ class XDADocument {
 	}
 
 	private void calcNameValue(String path, byte[] nameValue) {
-		byte[] theNameValue = XDACommonFunction
+		byte[] theNameValue = Utils
 				.converIntBigEndian2LittleEndian(this.nameValue);
 		int i = 0;
 		for (; i < theNameValue.length; ++i)
@@ -730,7 +730,7 @@ class XDADocument {
 
 	private void writeEntryNameTableLength(RandomAccessFile file,
 										   long nameTableLength) throws IOException {
-		XDACommonFunction.writeInt(file, nameTableLength);
+		Utils.writeInt(file, nameTableLength);
 	}
 
 	private void writeEntryCheckSum(byte[] checkSum) throws IOException {
@@ -766,7 +766,7 @@ class XDADocument {
 
 	private void writeEntryBSOffset(RandomAccessFile file, byte bitsParam,
 									long bSOffset) throws IOException {
-		XDACommonFunction.writeIntegerAccording2BitsParam(file, bitsParam,
+		Utils.writeIntegerAccording2BitsParam(file, bitsParam,
 				bSOffset);
 	}
 
@@ -776,7 +776,7 @@ class XDADocument {
 
 	private void writeEntryNext(RandomAccessFile file, byte bitsParam, long next)
 			throws IOException {
-		XDACommonFunction
+		Utils
 				.writeIntegerAccording2BitsParam(file, bitsParam, next);
 	}
 
@@ -876,7 +876,7 @@ class XDADocument {
 	}
 
 	private void writeBSLength(long length) throws XDAException, IOException {
-		XDACommonFunction.writeIntegerAccording2BitsParam(xdaDoc, header
+		Utils.writeIntegerAccording2BitsParam(xdaDoc, header
 				.getBitsParam(), length);
 	}
 
@@ -1040,7 +1040,7 @@ class XDADocument {
 				tmpStream.close();
 
 				InputStream unCodeStream = new FileInputStream(tmpFile);
-				XDACommonFunction.copyFromSrcToDst(unCodeStream, outPutStream,
+				Utils.copyFromSrcToDst(unCodeStream, outPutStream,
 						buffer);
 				unCodeStream.close();
 				tmpFile.delete();
