@@ -23,20 +23,20 @@ public class XDAContainer implements XDAInterface {
 
     // XDA文档操作
     public void create(String filePath, byte bitsParam)
-            throws FileNotFoundException, XDAException {
+            throws FileNotFoundException, FooE {
         File xdaFile = new File(filePath);
         doc.create(xdaFile, (byte) 0x01, (byte) 0x00, (byte) 0x00, bitsParam);
     }
 
     public void create(final String filePath) throws FileNotFoundException,
-            XDAException {
+            FooE {
         create(filePath, (byte) 0x04);
     }
 
-    public void open(String filePath) throws IOException, XDAException {
+    public void open(String filePath) throws IOException, FooE {
         File xdaFile = new File(filePath);
         if (!xdaFile.exists() || xdaFile.isDirectory())
-            throw new XDAException(XDAException.INVALID_FILE_PATH);
+            throw new FooE(FooE.INVALID_FILE_PATH);
 
         doc.open(xdaFile);
     }
@@ -46,23 +46,23 @@ public class XDAContainer implements XDAInterface {
     }
 
     public void save(boolean nameTableCompress, boolean itemListCompress)
-            throws NoSuchAlgorithmException, XDAException, IOException {
+            throws NoSuchAlgorithmException, FooE, IOException {
         byte entryCompressMark = 0x00;
         if (nameTableCompress)
-            entryCompressMark |= COMPRESSNAMETABLE_MASK;
+            entryCompressMark |= NAME_TABLE_MASK;
         if (itemListCompress)
             entryCompressMark |= COMPRESSITEMLIST_MASK;
 
         doc.saveChanges(entryCompressMark);
     }
 
-    public void save() throws NoSuchAlgorithmException, XDAException,
+    public void save() throws NoSuchAlgorithmException, FooE,
             IOException {
         save(true, true);
     }
 
     public void saveAs(String newXDAPath, byte bitsParam,
-                       boolean nameTableCompress, boolean itemListCompress) throws NoSuchAlgorithmException, XDAException, IOException {
+                       boolean nameTableCompress, boolean itemListCompress) throws NoSuchAlgorithmException, FooE, IOException {
         byte entryCompress = 0;
         if (nameTableCompress)
             entryCompress &= 0x01;
@@ -73,42 +73,42 @@ public class XDAContainer implements XDAInterface {
         doc.saveAs(newFile, (byte) 0x01, (byte) 0x00, (byte) 0x00, bitsParam, entryCompress);
     }
 
-    public void saveAs(String newXDAPath) throws NoSuchAlgorithmException, XDAException, IOException {
+    public void saveAs(String newXDAPath) throws NoSuchAlgorithmException, FooE, IOException {
         saveAs(newXDAPath, (byte) 0x04, true, true);
     }
 
     // 编辑操作
     public void addFile(String pathInXDA, String targetFilePath, byte[] ecs)
-            throws XDAException {
+            throws FooE {
         XDAInputStream inputSteam = dec.decorate(targetFilePath, ecs);
 
         doc.insertItem(pathInXDA, inputSteam, ecs);
     }
 
     public void addFile(String pathInXDA, byte[] targetDate, byte[] ecs)
-            throws XDAException {
+            throws FooE {
         XDAInputStream inputSteam = dec.decorate(targetDate, ecs);
         doc.insertItem(pathInXDA, inputSteam, ecs);
     }
 
     public void replaceFile(String pathInXDA, String targetFilePath, byte[] ecs)
-            throws XDAException {
+            throws FooE {
         XDAInputStream inputSteam = dec.decorate(targetFilePath, ecs);
         doc.replaceItem(pathInXDA, inputSteam, ecs);
     }
 
     public void replaceFile(String pathInXDA, byte[] targetDate, byte[] ecs)
-            throws XDAException {
+            throws FooE {
         XDAInputStream inputSteam = dec.decorate(targetDate, ecs);
         doc.replaceItem(pathInXDA, inputSteam, ecs);
     }
 
-    public void removeFile(String pathInXDA) throws XDAException {
+    public void removeFile(String pathInXDA) throws FooE {
         doc.deleteItem(pathInXDA);
     }
 
     public void addDir(String pathInXDA, String dirPath, byte[] ecs)
-            throws XDAException {
+            throws FooE {
         File dir = new File(dirPath);
         if (!dir.exists() || !dir.isDirectory())
             return;
@@ -130,27 +130,27 @@ public class XDAContainer implements XDAInterface {
             if (oneItemPath.startsWith(pathDir))
                 try {
                     doc.deleteItem(oneItemPath);
-                } catch (XDAException e) {
+                } catch (FooE e) {
                 }
         }
     }
 
     public void extractFile(String pathInXDA, String targetFilePath)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         OutputStream targetStream = new FileOutputStream(targetFilePath);
         doc.extractItemStream(pathInXDA, targetStream, dec);
     }
 
     @Override
     public byte[] extractFile(String pathInXDA) throws IOException,
-            XDAException {
+            FooE {
         ByteArrayOutputStream targetStream = new ByteArrayOutputStream();
         doc.extractItemStream(pathInXDA, targetStream, dec);
         return targetStream.toByteArray();
     }
 
     @Override
-    public void extractDir(String dir) throws IOException, XDAException {
+    public void extractDir(String dir) throws IOException, FooE {
         Vector<String> allLogicExistedItem = doc.getAllLogicExistedItem();
         for (String pathInXDA : allLogicExistedItem) {
             String targetFilePath = dir.concat(pathInXDA);
@@ -160,9 +160,9 @@ public class XDAContainer implements XDAInterface {
     }
 
     @Override
-    public void extractDir(String pathInXDA, String dir) throws XDAException {
+    public void extractDir(String pathInXDA, String dir) throws FooE {
         if (XDADocument.PACKPATH_PATTERN.matcher(pathInXDA).matches())
-            throw new XDAException(XDAException.INVALID_PACK_PATH);
+            throw new FooE(FooE.INVALID_PACK_PATH);
 
         char ch = pathInXDA.charAt(pathInXDA.length() - 1);
         if ((ch != '\\') && (ch != '/')) {
@@ -180,7 +180,7 @@ public class XDAContainer implements XDAInterface {
                     String extractFile = dir.concat(oneItemPath);
                     createFile(extractFile);
                     extractFile(oneItemPath, extractFile);
-                } catch (IOException | XDAException e) {
+                } catch (IOException | FooE e) {
                 }
             }
         }
@@ -192,12 +192,12 @@ public class XDAContainer implements XDAInterface {
     }
 
     @Override
-    public int getMajorVersion() throws XDAException {
+    public int getMajorVersion() throws FooE {
         return doc.getHeader().getMajorVersion();
     }
 
     @Override
-    public int getMinorVersion() throws XDAException {
+    public int getMinorVersion() throws FooE {
         return doc.getHeader().getMinorVersion();
     }
 
@@ -208,7 +208,7 @@ public class XDAContainer implements XDAInterface {
     }
 
     private void doAddDir(String parentPath, File dir, byte[] ecs)
-            throws XDAException {
+            throws FooE {
         File[] children = dir.listFiles();
         for (File child : children) {
             if (child.isDirectory()) {

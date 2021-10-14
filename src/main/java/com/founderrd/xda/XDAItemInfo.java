@@ -69,13 +69,13 @@ abstract class XDAHistory {
 
 	// 不进行任何的流装饰直接将当前History下的流写入target
 	abstract long writeTo(OutputStream target, byte bitsParam, byte[] buffer)
-			throws IOException, XDAException;
+			throws IOException, FooE;
 
 	abstract long writeTo(RandomAccessFile target, byte bitsParam, byte[] buffer)
-			throws IOException, XDAException;
+			throws IOException, FooE;
 
 	abstract long writeTo(RandomAccessFile target, byte bitsParam,
-						  byte[] buffer, byte[] checkSum) throws XDAException, IOException;
+						  byte[] buffer, byte[] checkSum) throws FooE, IOException;
 }
 
 class XDAOldHistory extends XDAHistory {
@@ -109,9 +109,9 @@ class XDAOldHistory extends XDAHistory {
 	}
 
 	long writeTo(OutputStream target, byte bitsParam, byte[] buffer)
-			throws IOException, XDAException {
+			throws IOException, FooE {
 		if (operator == XDADefine.OPERATOR_DELETE)
-			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
+			throw new FooE(FooE.CANNOT_EXTRACT_STREAM);
 
 		seek(bitsParam);
 		return Utils.copyFromSrcToDst(fileXDA, target, length,
@@ -119,9 +119,9 @@ class XDAOldHistory extends XDAHistory {
 	}
 
 	long writeTo(RandomAccessFile target, byte bitsParam, byte[] buffer)
-			throws IOException, XDAException {
+			throws IOException, FooE {
 		if (operator == XDADefine.OPERATOR_DELETE)
-			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
+			throw new FooE(FooE.CANNOT_EXTRACT_STREAM);
 
 		seek(bitsParam);
 		return Utils.copyFromSrcToDst(fileXDA, target, length,
@@ -129,9 +129,9 @@ class XDAOldHistory extends XDAHistory {
 	}
 
 	long writeTo(RandomAccessFile target, byte bitsParam, byte[] buffer,
-				 byte[] checkSum) throws XDAException, IOException {
+				 byte[] checkSum) throws FooE, IOException {
 		if (operator == XDADefine.OPERATOR_DELETE)
-			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
+			throw new FooE(FooE.CANNOT_EXTRACT_STREAM);
 
 		seek(bitsParam);
 		return Utils.copyFromSrcToDst(fileXDA, target, length,
@@ -163,9 +163,9 @@ class XDANewHistory extends XDAHistory {
 	}
 
 	long writeTo(OutputStream target, byte bitsParam, byte[] buffer)
-			throws IOException, XDAException {
+			throws IOException, FooE {
 		if (operator == XDADefine.OPERATOR_DELETE)
-			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
+			throw new FooE(FooE.CANNOT_EXTRACT_STREAM);
 
 		maintainedStream.open();
 		long result = Utils.copyFromSrcToDst(maintainedStream,
@@ -175,9 +175,9 @@ class XDANewHistory extends XDAHistory {
 	}
 
 	long writeTo(RandomAccessFile target, byte bitsParam, byte[] buffer)
-			throws IOException, XDAException {
+			throws IOException, FooE {
 		if (operator == XDADefine.OPERATOR_DELETE)
-			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
+			throw new FooE(FooE.CANNOT_EXTRACT_STREAM);
 
 		maintainedStream.open();
 		long result = Utils.copyFromSrcToDst(maintainedStream,
@@ -187,9 +187,9 @@ class XDANewHistory extends XDAHistory {
 	}
 
 	long writeTo(RandomAccessFile target, byte bitsParam, byte[] buffer,
-				 byte[] checkSum) throws XDAException, IOException {
+				 byte[] checkSum) throws FooE, IOException {
 		if (operator == XDADefine.OPERATOR_DELETE)
-			throw new XDAException(XDAException.CANNOT_EXTRACT_STREAM);
+			throw new FooE(FooE.CANNOT_EXTRACT_STREAM);
 
 		maintainedStream.open();
 		long result = Utils.copyFromSrcToDst(maintainedStream,

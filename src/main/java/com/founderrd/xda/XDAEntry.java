@@ -69,12 +69,12 @@ class XDAEntry {
 
     void parse(RandomAccessFile fileXDA, final long position,
                final byte bitsParam, final int index,
-               HashMap<String, XDAItemInfo> itemsMap) throws XDAException,
+               HashMap<String, XDAItemInfo> itemsMap) throws FooE,
             IOException {
         this.position = position;
         this.index = index;
         if (bitsParam != 0x02 && bitsParam != 0x04 && bitsParam != 0x08)
-            throw new XDAException(XDAException.INVALID_BITSPARAM);
+            throw new FooE(FooE.INVALID_BITSPARAM);
 
         fileXDA.seek(this.position);
         parseClassType(fileXDA);
@@ -90,23 +90,23 @@ class XDAEntry {
         isParse = true;
     }
 
-    long getPosition() throws XDAException {
+    long getPosition() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return position;
     }
 
-    public void setPosition(long position) throws XDAException {
+    public void setPosition(long position) throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         this.position = position;
     }
 
-    int getEntryLength() throws XDAException {
+    int getEntryLength() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return entryLength;
     }
@@ -115,16 +115,16 @@ class XDAEntry {
         this.entryLength = entryLength;
     }
 
-    long getBSOffset() throws XDAException {
+    long getBSOffset() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return bsOffset;
     }
 
-    long getNext() throws XDAException {
+    long getNext() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return next;
     }
@@ -133,9 +133,9 @@ class XDAEntry {
         this.next = next;
     }
 
-    byte getCompress() throws XDAException {
+    byte getCompress() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return compress;
     }
@@ -171,9 +171,9 @@ class XDAEntry {
     // }
     // }
 
-    byte[] getCheckSum() throws XDAException {
+    byte[] getCheckSum() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return checkSum;
     }
@@ -182,9 +182,9 @@ class XDAEntry {
         this.checkSum = checkSum;
     }
 
-    int getNameTableLength() throws XDAException {
+    int getNameTableLength() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return nameTableLength;
     }
@@ -203,10 +203,10 @@ class XDAEntry {
     }
 
     private DataInputStream createNameTableStream(RandomAccessFile theFileXDA)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         byte[] nameTableData = new byte[nameTableLength];
         if (theFileXDA.read(nameTableData) < nameTableLength)
-            throw new XDAException(XDAException.INVALID_NAMETABLE);
+            throw new FooE(FooE.INVALID_NAMETABLE);
 
         InputStream pureNameTableDataStream = new ByteArrayInputStream(
                 nameTableData);
@@ -227,10 +227,10 @@ class XDAEntry {
     }
 
     private DataInputStream createItemListStream(RandomAccessFile theFileXDA)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         byte[] itemListData = new byte[itemListLength];
         if (theFileXDA.read(itemListData) < itemListLength)
-            throw new XDAException(XDAException.INVALID_ITEMLIST);
+            throw new FooE(FooE.INVALID_ITEMLIST);
 
         InputStream pureItemListDataStream = new ByteArrayInputStream(
                 itemListData);
@@ -323,8 +323,7 @@ class XDAEntry {
             // ItemInfo in NameTable
             BigInteger nameValueInNameTable = Utils.readBigInteger(
                     nameTableStream, NAMEVALUE_LENGTH);
-            String path = Utils.readUTF8(nameTableStream,
-                    PATH_LENGTH);
+            String path = Utils.readUTF8(nameTableStream, PATH_LENGTH);
             nameTable.add(new NamePathPair(path, nameValueInNameTable));
         }
 
@@ -333,7 +332,7 @@ class XDAEntry {
 
     private void parseNameTableAndItemList(RandomAccessFile theFileXDA,
                                            final byte theBitsParam, HashMap<String, XDAItemInfo> itemsMap)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         DataInputStream nameTableStream = createNameTableStream(theFileXDA);
         DataInputStream itemListStream = createItemListStream(theFileXDA);
 
@@ -345,7 +344,7 @@ class XDAEntry {
 
     private void updateExistedItemOp2ItemsMap(OperItem theOperItem,
                                               XDAItemInfo theItemInfo, RandomAccessFile theFileXDA,
-                                              byte theBitsParam) throws XDAException, IOException {
+                                              byte theBitsParam) throws FooE, IOException {
         for (OperItem.OpAndOffSet opAndOffSet : theOperItem.opAndOffset) {
             XDAHistory lastHistroy = theItemInfo.histories.lastElement();
             CheckOperatorSequence(lastHistroy.operator,
@@ -361,9 +360,9 @@ class XDAEntry {
 
     private void updateUnexistedItemOp2ItemsMap(OperItem operItem, String path,
                                                 HashMap<String, XDAItemInfo> itemsMap, RandomAccessFile fileXDA,
-                                                byte bitsParam) throws XDAException, IOException {
+                                                byte bitsParam) throws FooE, IOException {
         if ((byte) (operItem.opAndOffset.firstElement().operator & XDADefine.OPERATOR_MASK) != XDADefine.OPERATOR_NEW)
-            throw new XDAException(XDAException.INEXISTENT_ITEM);
+            throw new FooE(FooE.INEXISTENT_ITEM);
 
         XDAItemInfo newItemInfo = new XDAItemInfo(path);
         int i = 0;
@@ -392,13 +391,13 @@ class XDAEntry {
     private void updateItemsMap(RandomAccessFile fileXDA, byte bitsParam,
                                 Vector<NamePathPair> nameTable,
                                 HashMap<BigInteger, OperItem> itemList,
-                                HashMap<String, XDAItemInfo> itemsMap) throws XDAException,
+                                HashMap<String, XDAItemInfo> itemsMap) throws FooE,
             IOException {
 
         for (NamePathPair namePathPair : nameTable) {
             OperItem oneOperItem = itemList.get(namePathPair.nameValue);
             if (oneOperItem == null)
-                throw new XDAException(XDAException.INVALID_NAMEVALUE);
+                throw new FooE(FooE.INVALID_NAMEVALUE);
 
             XDAItemInfo oneItemInfo = itemsMap.get(namePathPair.path);
             // 路径名已经存在
@@ -415,18 +414,18 @@ class XDAEntry {
     }
 
     private void CheckOperatorSequence(byte lastOperator, byte currentOperator)
-            throws XDAException {
+            throws FooE {
         if ((lastOperator == XDADefine.OPERATOR_DELETE && currentOperator != XDADefine.OPERATOR_NEW)
                 || (lastOperator == XDADefine.OPERATOR_NEW && currentOperator == XDADefine.OPERATOR_NEW))
-            throw new XDAException(XDAException.INVALID_OPERATION_SEQUENCE);
+            throw new FooE(FooE.INVALID_OPERATION_SEQUENCE);
     }
 
     private void parseClassType(RandomAccessFile theFileXDA)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         byte[] theClassType = new byte[CLASSTYPE_LENGTH];
         theFileXDA.read(theClassType);
         if (!Utils.compareArray(theClassType, CLASSTYPE_CONTENT))
-            throw new XDAException(XDAException.INVALID_ENTRY_CLASSTYPE);
+            throw new FooE(FooE.INVALID_ENTRY_CLASSTYPE);
     }
 
     private void parseEntryLength(RandomAccessFile theFileXDA)
@@ -435,19 +434,19 @@ class XDAEntry {
     }
 
     private void parseBSOffset(RandomAccessFile theFileXDA,
-                               final byte theBitsParam) throws IOException, XDAException {
+                               final byte theBitsParam) throws IOException, FooE {
         bsOffset = Utils.readIntegerAccording2BitsParam(theFileXDA,
                 theBitsParam);
     }
 
     private void parseNext(RandomAccessFile theFileXDA, final byte theBitsParam)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         next = Utils.readIntegerAccording2BitsParam(theFileXDA,
                 theBitsParam);
     }
 
     private void parseCompress(RandomAccessFile theFileXDA) throws IOException,
-            XDAException {
+            FooE {
         compress = theFileXDA.readByte();
     }
 
@@ -460,9 +459,9 @@ class XDAEntry {
         nameTableLength = Utils.readInt(theFileXDA);
     }
 
-    public int getIndex() throws XDAException {
+    public int getIndex() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return index;
     }
@@ -475,9 +474,9 @@ class XDAEntry {
         this.bsOffset = bsOffset;
     }
 
-    public int getItemListLength() throws XDAException {
+    public int getItemListLength() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return itemListLength;
     }
@@ -486,9 +485,9 @@ class XDAEntry {
         this.itemListLength = itemListLength;
     }
 
-    public int getNameCount() throws XDAException {
+    public int getNameCount() throws FooE {
         if (!isParse)
-            throw new XDAException(XDAException.NEVER_PARSE_ENTRY);
+            throw new FooE(FooE.NEVER_PARSE_ENTRY);
 
         return nameCount;
     }
@@ -498,7 +497,7 @@ class XDAEntry {
     }
 
     // 操作项
-    class OperItem {
+    static class OperItem {
         final Vector<OpAndOffSet> opAndOffset;
         BigInteger nameValue;
 
@@ -518,7 +517,7 @@ class XDAEntry {
         }
     }
 
-    class NamePathPair {
+    static class NamePathPair {
         final String path;
         final BigInteger nameValue;
 

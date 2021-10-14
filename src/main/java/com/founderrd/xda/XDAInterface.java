@@ -41,7 +41,7 @@ public interface XDAInterface {
     /**
      * NameTable压缩掩码
      */
-    byte COMPRESSNAMETABLE_MASK = (byte) 0x01;
+    byte NAME_TABLE_MASK = (byte) 0x01;
 
     /**
      * ItemList压缩掩码
@@ -55,11 +55,11 @@ public interface XDAInterface {
      *
      * @param filePath  新建XDA文档的文件路径
      * @param bitsParam 位参数
-     * @throws XDAException
+     * @throws FooE
      * @throws FileNotFoundException
      */
     void create(final String filePath, byte bitsParam)
-            throws FileNotFoundException, XDAException;
+            throws FileNotFoundException, FooE;
 
     /**
      * 新建空XDA文档。<br>
@@ -71,17 +71,17 @@ public interface XDAInterface {
      * @see #create(String, byte)
      */
     void create(final String filePath) throws FileNotFoundException,
-            XDAException;
+            FooE;
 
     /**
      * 打开一个XDA文档
      * <p>
      *
      * @param filePath XDA文档的文件路径
-     * @throws XDAException
+     * @throws FooE
      * @throws IOException
      */
-    void open(final String filePath) throws IOException, XDAException;
+    void open(final String filePath) throws IOException, FooE;
 
     /**
      * 关闭当前XDA文档
@@ -98,11 +98,11 @@ public interface XDAInterface {
      * @param nameTableCompress 如果为true，则对NameTable进行压缩
      * @param itemListCompress  如果为true，则对ItemList进行压缩
      * @throws IOException
-     * @throws XDAException
+     * @throws FooE
      * @throws NoSuchAlgorithmException
      */
     void save(boolean nameTableCompress, boolean itemListCompress)
-            throws NoSuchAlgorithmException, XDAException, IOException;
+            throws NoSuchAlgorithmException, FooE, IOException;
 
     /**
      * 保存一个XDA文档<br>
@@ -110,11 +110,11 @@ public interface XDAInterface {
      * 相当于调用了save(true, true).
      * <p>
      *
-     * @throws XDAException
+     * @throws FooE
      * @throws NoSuchAlgorithmException
      * @see #save(boolean, boolean)
      */
-    void save() throws NoSuchAlgorithmException, XDAException,
+    void save() throws NoSuchAlgorithmException, FooE,
             IOException;
 
     /**
@@ -127,14 +127,14 @@ public interface XDAInterface {
      * @param nameTableCompress 如果为true，则对NameTable进行压缩
      * @param itemListCompress  如果为true，则对ItemList进行压缩
      * @throws IOException
-     * @throws XDAException
+     * @throws FooE
      * @throws NoSuchAlgorithmException
      * @throws IOException
-     * @throws XDAException
+     * @throws FooE
      */
     void saveAs(String newXDAPath, byte bitsParam,
                 boolean nameTableCompress, boolean itemListCompress)
-            throws NoSuchAlgorithmException, XDAException, IOException;
+            throws NoSuchAlgorithmException, FooE, IOException;
 
     /**
      * 另存为一个新的XDA文件<br>
@@ -145,14 +145,14 @@ public interface XDAInterface {
      *
      * @param newXDAPath 新XDA文件路径
      * @throws IOException
-     * @throws XDAException
+     * @throws FooE
      * @throws NoSuchAlgorithmException
      * @throws IOException
-     * @throws XDAException
+     * @throws FooE
      * @see #saveAs(String, byte, boolean, boolean)
      */
     void saveAs(String newXDAPath) throws NoSuchAlgorithmException,
-            XDAException, IOException;
+            FooE, IOException;
 
     /**
      * 向包添加一个文件<br>
@@ -163,10 +163,10 @@ public interface XDAInterface {
      * @param pathInXDA      XDA文档内路径;
      * @param targetFilePath 待添加的目标文件路径;
      * @param ecs            ECS, 长度必须等于实际可用字节长度.
-     * @throws XDAException
+     * @throws FooE
      */
     void addFile(final String pathInXDA, final String targetFilePath,
-                 byte[] ecs) throws XDAException;
+                 byte[] ecs) throws FooE;
 
     /**
      * 向包添加一个文件<br>
@@ -177,11 +177,11 @@ public interface XDAInterface {
      * @param pathInXDA  XDA文档内路径;
      * @param targetDate 待添加的目标内存;
      * @param ecs        ECS, 长度必须等于实际可用字节长度。
-     * @throws XDAException
-     * @throws XDAException
+     * @throws FooE
+     * @throws FooE
      */
     void addFile(final String pathInXDA, final byte[] targetDate,
-                 byte[] ecs) throws XDAException;
+                 byte[] ecs) throws FooE;
 
     /**
      * 替换包内文件<br>
@@ -192,10 +192,10 @@ public interface XDAInterface {
      * @param pathInXDA      XDA文档内路径;
      * @param targetFilePath 待替换的目标文件路径;
      * @param ecs            ECS, 长度必须等于实际可用字节长度.
-     * @throws XDAException
+     * @throws FooE
      */
     void replaceFile(final String pathInXDA,
-                     final String targetFilePath, byte[] ecs) throws XDAException;
+                     final String targetFilePath, byte[] ecs) throws FooE;
 
     /**
      * 替换包内文件<br>
@@ -206,20 +206,20 @@ public interface XDAInterface {
      * @param pathInXDA  XDA文档内路径;
      * @param targetDate 待替换的目标内存;
      * @param ecs        ECS, 长度必须等于实际可用字节长度.
-     * @throws XDAException
-     * @throws XDAException
+     * @throws FooE
+     * @throws FooE
      */
     void replaceFile(final String pathInXDA, final byte[] targetDate,
-                     byte[] ecs) throws XDAException;
+                     byte[] ecs) throws FooE;
 
     /**
      * 移除包内文件
      * <p>
      *
      * @param pathInXDA XDA文档内路径;
-     * @throws XDAException
+     * @throws FooE
      */
-    void removeFile(final String pathInXDA) throws XDAException;
+    void removeFile(final String pathInXDA) throws FooE;
 
     /**
      * 添加指定目录所有子孙文件
@@ -228,17 +228,17 @@ public interface XDAInterface {
      * @param pathInXDA 挂接的XDA文档路径,""表示在从根开始;
      * @param dirPath   指定目录;
      * @param ecs       ECS, 长度必须等于实际可用字节长度.
-     * @throws XDAException
+     * @throws FooE
      */
     void addDir(String pathInXDA, String dirPath, byte[] ecs)
-            throws XDAException;
+            throws FooE;
 
     /**
      * 移除指定目录下所有内容
      * <p>
      *
      * @param pathInXDA 待删除的目录路径;
-     * @throws XDAException
+     * @throws FooE
      */
     void removeDir(String pathInXDA);
 
@@ -251,11 +251,11 @@ public interface XDAInterface {
      * @param pathInXDA      XDA文档内路径;
      * @param targetFilePath 提取的文件路径;
      * @throws FileNotFoundException
-     * @throws XDAException
+     * @throws FooE
      * @throws IOException
      */
     void extractFile(final String pathInXDA, final String targetFilePath)
-            throws FileNotFoundException, IOException, XDAException;
+            throws FileNotFoundException, IOException, FooE;
 
     /**
      * 提取包内文件<br>
@@ -264,14 +264,14 @@ public interface XDAInterface {
      *
      * @param pathInXDA XDA文档内路径
      * @return 装载提取文件内容的内存
-     * @throws XDAException
+     * @throws FooE
      * @throws IOException
      * @throws FileNotFoundException
-     * @throws XDAException
+     * @throws FooE
      * @throws IOException
      */
     byte[] extractFile(final String pathInXDA) throws IOException,
-            XDAException;
+            FooE;
 
     /**
      * 提取包根目录下的所有子孙文件到指定文件夹
@@ -280,11 +280,11 @@ public interface XDAInterface {
      *
      * @param dir 指定文件夹
      * @throws FileNotFoundException
-     * @throws XDAException
+     * @throws FooE
      * @throws IOException
      * @see #extractDir(String, String)
      */
-    void extractDir(String dir) throws IOException, XDAException;
+    void extractDir(String dir) throws IOException, FooE;
 
     /**
      * 提取包内指定路径下的所有子孙文件到指定文件夹
@@ -293,11 +293,11 @@ public interface XDAInterface {
      * @param pathInXDA 包内指定路径,""相当于从跟开始
      * @param dir       指定文件夹
      * @throws FileNotFoundException
-     * @throws XDAException
+     * @throws FooE
      * @throws IOException
      */
     void extractDir(String pathInXDA, String dir) throws IOException,
-            XDAException;
+            FooE;
 
     /**
      * 对文件校验和进行检查
@@ -312,17 +312,17 @@ public interface XDAInterface {
      * <p>
      *
      * @return 主版本号
-     * @throws XDAException
+     * @throws FooE
      */
-    int getMajorVersion() throws XDAException;
+    int getMajorVersion() throws FooE;
 
     /**
      * 获取次版本号
      * <p>
      *
      * @return 次版本号
-     * @throws XDAException
+     * @throws FooE
      */
-    int getMinorVersion() throws XDAException;
+    int getMinorVersion() throws FooE;
 
 }

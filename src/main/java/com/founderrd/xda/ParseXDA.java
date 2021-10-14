@@ -80,7 +80,7 @@ class Command {
                 e.printStackTrace();
                 printPrompt();
                 return;
-            } catch (XDAException e) {
+            } catch (FooE e) {
                 System.out.println(e.getInfo());
                 e.printStackTrace();
                 printPrompt();
@@ -125,7 +125,7 @@ class Command {
 
     class Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws XDAException, IOException,
+                throws FooE, IOException,
                 NoSuchAlgorithmException {
             return "Invalid Command!";
         }
@@ -154,7 +154,7 @@ class Command {
 
     class Create extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws FileNotFoundException, XDAException {
+                throws FileNotFoundException, FooE {
             if (command.length < 2) {
                 return MISSING_PARAMETER;
             } else if (command.length == 2) {
@@ -190,7 +190,7 @@ class Command {
 
     class Open extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws IOException, XDAException {
+                throws IOException, FooE {
             if (command.length < 2) {
                 return MISSING_PARAMETER;
             } else {
@@ -236,7 +236,7 @@ class Command {
 
     class Save extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws NoSuchAlgorithmException, XDAException, IOException {
+                throws NoSuchAlgorithmException, FooE, IOException {
             if (command.length == 1) {
                 xdaPack.save();
             } else if (command.length == 3) {
@@ -262,7 +262,7 @@ class Command {
 
     class SavaAs extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws NoSuchAlgorithmException, XDAException, IOException {
+                throws NoSuchAlgorithmException, FooE, IOException {
             if (command.length == 2) {
                 xdaPack.saveAs(command[1]);
             } else if (command.length == 5) {
@@ -293,7 +293,7 @@ class Command {
 
     class AddFile extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws XDAException {
+                throws FooE {
             byte[] ecs;
             if (isCompress)
                 ecs = ecsC;
@@ -325,7 +325,7 @@ class Command {
 
     class ReplaceFile extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws XDAException {
+                throws FooE {
             byte[] ecs;
             if (isCompress)
                 ecs = ecsC;
@@ -357,7 +357,7 @@ class Command {
 
     class RemoveFile extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws XDAException {
+                throws FooE {
             if (command.length < 2)
                 return MISSING_PARAMETER;
             else {
@@ -383,7 +383,7 @@ class Command {
 
     class AddDir extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws XDAException {
+                throws FooE {
             byte[] ecs;
             if (isCompress)
                 ecs = ecsC;
@@ -439,7 +439,7 @@ class Command {
 
     class ExtractFile extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws IOException, XDAException {
+                throws IOException, FooE {
             if (command.length < 3)
                 return MISSING_PARAMETER;
             else {
@@ -465,7 +465,7 @@ class Command {
 
     class ExtractDir extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws IOException, XDAException {
+                throws IOException, FooE {
             if (command.length == 2) {
                 xdaPack.extractDir(command[1]);
             } else if (command.length == 3) {
@@ -492,7 +492,7 @@ class Command {
 
     class GetMajorVersion extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws XDAException {
+                throws FooE {
             System.out.println(xdaPack.getMajorVersion());
             return SUCCESS;
         }
@@ -512,7 +512,7 @@ class Command {
 
     class GetMinorVersion extends Cmd {
         String execute(String[] command, XDAInterface xdaPack)
-                throws XDAException {
+                throws FooE {
             System.out.println(xdaPack.getMinorVersion());
             return SUCCESS;
         }

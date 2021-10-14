@@ -9,10 +9,6 @@ package com.founderrd.xda;
  */
 
 
-import com.founderrd.xda.XDADecorator;
-import com.founderrd.xda.XDAException;
-import com.founderrd.xda.XDAInputStream;
-
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -41,6 +37,19 @@ class Utils {
 
     }
 
+    public static int readInt(byte[] b) {
+        return readInt(b, 0);
+    }
+
+    public static int readInt(byte[] b, int offset) {
+        if (b.length < offset + 4) {
+            throw new ArrayIndexOutOfBoundsException(offset);
+        }
+
+        return ((b[offset + 3] << 24) & 0xff000000) + ((b[offset + 2] << 16) & 0x00ff0000)
+                + ((b[offset + 1] << 8) & 0x0000ff00) + (b[offset] & 0x000000ff);
+    }
+
     public static int readInt(RandomAccessFile theFile) throws IOException {
         byte b1 = theFile.readByte();
         byte b2 = theFile.readByte();
@@ -54,23 +63,24 @@ class Utils {
     public static short readShort(RandomAccessFile theFile) throws IOException {
         byte b1 = theFile.readByte();
         byte b2 = theFile.readByte();
-
-        return (short) ((b2 << 8) + b1);
-
+        return (short) ((b2 << 8) + (b1 & 0xff));
     }
 
     // InputStream类型接口
     public static short readShort(InputStream theStream) throws IOException {
         byte[] b = new byte[2];
-        theStream.read(b);
+        if (theStream.read(b) == -1) {
+            return -1;
+        }
 
         return (short) (((b[1] << 8) & 0xff00) + (b[0] & 0x00ff));
     }
 
     public static int readInt(InputStream theStream) throws IOException {
         byte[] b = new byte[4];
-        theStream.read(b, 0, 4);
-
+        if (theStream.read(b) == -1) {
+            return -1;
+        }
         return ((b[3] << 24) & 0xff000000) + ((b[2] << 16) & 0x00ff0000)
                 + ((b[1] << 8) & 0x0000ff00) + (b[0] & 0x000000ff);
     }
@@ -78,20 +88,15 @@ class Utils {
     public static long readLong(InputStream theStream) throws IOException {
         byte[] b = new byte[8];
         theStream.read(b);
-        return -1;
-        //
-        //
-        //
-        // return ((long)b[7] << 56) & (long)0xff000000 << 24;
-        // + ((long)b[6] << 48)
-        // + ((long)b[5] << 40) + ((long)b[4] << 32)
-        // + ((long)b[3] << 24) + ((long)b[2] << 16)
-        // + ((long)b[1] << 8) + b[0];
+        return (((long) b[7] << 56) & (long) 0xff000000 << 24)
+                + ((long) b[6] << 48)
+                + ((long) b[5] << 40) + ((long) b[4] << 32)
+                + ((long) b[3] << 24) + ((long) b[2] << 16)
+                + ((long) b[1] << 8) + b[0];
 
     }
 
-    public static String readUTF8(InputStream theStream, int length)
-            throws IOException {
+    public static String readUTF8(InputStream theStream, int length) throws IOException {
         byte[] utfString = new byte[length];
         int temp;
         boolean valid = false;
@@ -188,7 +193,7 @@ class Utils {
     }
 
     public static long copyFromSrcToDst(InputStream src, OutputStream dst,
-                                        long length, byte[] buffer) throws IOException, XDAException {
+                                        long length, byte[] buffer) throws IOException, FooE {
         long actualRead = 0;
         while (length > 0) {
             int readBytes;
@@ -198,7 +203,7 @@ class Utils {
                 readBytes = src.read(buffer, 0, (int) length);
 
             if (readBytes == -1)
-                throw new XDAException(XDAException.XDACOMMONFUNCTION_ERROR);
+                throw new FooE(FooE.XDACOMMONFUNCTION_ERROR);
 
             dst.write(buffer, 0, readBytes);
             length -= readBytes;
@@ -301,7 +306,7 @@ class Utils {
     }
 
     public static long copyFromSrcToDst(RandomAccessFile src, OutputStream dst,
-                                        long length, byte[] buffer) throws IOException, XDAException {
+                                        long length, byte[] buffer) throws IOException, FooE {
         long actualRead = 0;
         int readBytes;
         while (length > 0) {
@@ -311,7 +316,7 @@ class Utils {
                 readBytes = src.read(buffer, 0, (int) length);
 
             if (readBytes == -1)
-                throw new XDAException(XDAException.XDACOMMONFUNCTION_ERROR);
+                throw new FooE(FooE.XDACOMMONFUNCTION_ERROR);
 
             dst.write(buffer, 0, readBytes);
             length -= readBytes;
@@ -322,7 +327,7 @@ class Utils {
 
     public static long copyFromSrcToDst(RandomAccessFile src, OutputStream dst,
                                         long length, byte[] buffer, byte[] checkSum) throws IOException,
-            XDAException {
+            FooE {
         long actualRead = 0;
         int readBytes;
         while (length > 0) {
@@ -332,7 +337,7 @@ class Utils {
                 readBytes = src.read(buffer, 0, (int) length);
 
             if (readBytes == -1)
-                throw new XDAException(XDAException.XDACOMMONFUNCTION_ERROR);
+                throw new FooE(FooE.XDACOMMONFUNCTION_ERROR);
 
             checkSum[0] ^= calcCheckSum(buffer, 0, readBytes);
             dst.write(buffer, 0, readBytes);
@@ -344,7 +349,7 @@ class Utils {
 
     public static long copyFromSrcToDst(RandomAccessFile src,
                                         RandomAccessFile dst, long length, byte[] buffer)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         long actualRead = 0;
         int readBytes;
         while (length > 0) {
@@ -354,7 +359,7 @@ class Utils {
                 readBytes = src.read(buffer, 0, (int) length);
 
             if (readBytes == -1)
-                throw new XDAException(XDAException.XDACOMMONFUNCTION_ERROR);
+                throw new FooE(FooE.XDACOMMONFUNCTION_ERROR);
 
             dst.write(buffer, 0, readBytes);
             length -= readBytes;
@@ -365,7 +370,7 @@ class Utils {
 
     public static long copyFromSrcToDst(RandomAccessFile src,
                                         RandomAccessFile dst, long length, byte[] buffer, byte[] checkSum)
-            throws IOException, XDAException {
+            throws IOException, FooE {
         long actualRead = 0;
         int readBytes;
         while (length > 0) {
@@ -376,7 +381,7 @@ class Utils {
 
             checkSum[0] ^= calcCheckSum(buffer, 0, readBytes);
             if (readBytes == -1)
-                throw new XDAException(XDAException.XDACOMMONFUNCTION_ERROR);
+                throw new FooE(FooE.XDACOMMONFUNCTION_ERROR);
 
             dst.write(buffer, 0, readBytes);
             length -= readBytes;

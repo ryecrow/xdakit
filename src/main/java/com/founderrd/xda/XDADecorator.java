@@ -23,10 +23,10 @@ class XDADecorator {
         return doDecorate(in, ecs);
     }
 
-    public XDAInputStream decorate(String path, byte[] ecs) throws XDAException {
+    public XDAInputStream decorate(String path, byte[] ecs) throws FooE {
         File file = new File(path);
         if (!file.exists() || file.isDirectory())
-            throw new XDAException(XDAException.INVALID_FILE_PATH);
+            throw new FooE(FooE.INVALID_FILE_PATH);
 
         return decorate(file, ecs);
     }
