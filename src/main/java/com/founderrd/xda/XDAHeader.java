@@ -5,20 +5,17 @@ package com.founderrd.xda;
  */
 class XDAHeader {
 
-    static final byte[] SIGNATURE = {'@', 'X', 'D', 'A', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    static final int MAGIC_OFFSET = 0;
-    static final int SIGNATURE_LENGTH = SIGNATURE.length;
-    static final int ENTRY_COUNT_OFFSET = SIGNATURE_LENGTH + 2;
-    static final int FIRST_ENTRY_OFFSET = ENTRY_COUNT_OFFSET + ENTRY_COUNT_LENGTH + 2;
-    static final int ENTRY_COUNT_LENGTH = 4;
-    static final int SIGNATURE_END = 4;
+    static final byte[] RIGHTS_INFO = {'@', 'X', 'D', 'A', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    static final int RIGHTS_INFO_LENGTH = RIGHTS_INFO.length;
+    static final int ENTRY_COUNT_OFFSET = RIGHTS_INFO_LENGTH + 2;
+    static final int FIRST_ENTRY_OFFSET = ENTRY_COUNT_OFFSET + 6;
 
     private final byte majorVersion;
     private final byte minorVersion;
+    private final int entryCount;
     private final byte entryNameTableType;
     private final byte bitsParam;
-    private int entryCount;
-    private long firstEntryOffset;
+    private final long firstEntryOffset;
 
     XDAHeader() {
         this.majorVersion = 0x01;
@@ -30,10 +27,10 @@ class XDAHeader {
     }
 
     XDAHeader(byte majorVersion, byte minorVersion, byte entryNameTableType, byte bitsParam) throws XDAException {
-        this(majorVersion, minorVersion, entryNameTableType, bitsParam, 0, -1);
+        this(majorVersion, minorVersion, 0, entryNameTableType, bitsParam, 0L);
     }
 
-    XDAHeader(byte majorVersion, byte minorVersion, byte entryNameTableType, byte bitsParam, int entryCount, long firstEntryOffset)
+    XDAHeader(byte majorVersion, byte minorVersion, int entryCount, byte entryNameTableType, byte bitsParam, long firstEntryOffset)
             throws XDAException {
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
@@ -55,10 +52,6 @@ class XDAHeader {
         return entryCount;
     }
 
-    public void setEntryCount(int entryCount) {
-        this.entryCount = entryCount;
-    }
-
     public final byte getEntryNameTableType() {
         return entryNameTableType;
     }
@@ -69,10 +62,6 @@ class XDAHeader {
 
     public final long getFirstEntryOffset() {
         return firstEntryOffset;
-    }
-
-    public void setFirstEntryOffset(long firstEntryOffset) {
-        this.firstEntryOffset = firstEntryOffset;
     }
 
     private byte validateEntryNameTableType(byte entryNameTableType) throws XDAException {

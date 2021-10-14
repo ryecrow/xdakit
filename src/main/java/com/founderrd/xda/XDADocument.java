@@ -267,7 +267,7 @@ class XDADocument implements AutoCloseable {
 
     private void parseHeader() throws IOException, XDAException {
         this.xdaDoc.seek(0);
-        validateSignature();
+        validateRightsInfo();
         byte[] data = new byte[8];
         if (this.xdaDoc.read(data) != data.length) {
             throw new XDAException("Failed to read xda header. The file might be corrupted");
@@ -277,8 +277,8 @@ class XDADocument implements AutoCloseable {
         int entryCount = Utils.readInt(data, 2);
         byte bitsParam = data[6];
         byte entryNameTableType = data[7];
-        long firstEntryOffset = parseFirstEntryOffset(bitsParam)
-        this.header = new XDAHeader(major, minor, entryNameTableType, bitsParam, entryCount, firstEntryOffset);
+        long firstEntryOffset = parseFirstEntryOffset(bitsParam);
+        this.header = new XDAHeader(major, minor, entryCount, entryNameTableType, bitsParam, firstEntryOffset);
     }
 
     private void parseEntry(final long position, final byte bitsParam, final int index,
@@ -479,7 +479,7 @@ class XDADocument implements AutoCloseable {
             return;
         }
         file.seek(0);
-        file.write(XDAHeader.SIGNATURE);
+        file.write(XDAHeader.RIGHTS_INFO);
         file.writeByte(header.getMajorVersion());
         file.writeByte(header.getMinorVersion());
         Utils.writeInt(file, header.getEntryCount());
@@ -1325,16 +1325,16 @@ class XDADocument implements AutoCloseable {
         }
     }
 
-    private void validateSignature() throws XDAException {
-        byte[] signature = new byte[XDAHeader.SIGNATURE_LENGTH];
+    private void validateRightsInfo() throws XDAException {
+        byte[] rightsInfo = new byte[XDAHeader.RIGHTS_INFO_LENGTH];
         int actualRead;
         try {
-            actualRead = xdaDoc.read(signature);
+            actualRead = xdaDoc.read(rightsInfo);
         } catch (IOException e) {
-            throw new XDAException("Failed to read file signature", e);
+            throw new XDAException("Failed to read file rights info", e);
         }
-        if ((actualRead != XDAHeader.SIGNATURE_LENGTH) || Arrays.equals(signature, XDAHeader.SIGNATURE)) {
-            throw new XDAException("The file seems not to have a valid signature. Maybe it is not a valid xda file");
+        if ((actualRead != XDAHeader.RIGHTS_INFO_LENGTH) || Arrays.equals(rightsInfo, XDAHeader.RIGHTS_INFO)) {
+            throw new XDAException("The file seems not to have a valid RightsInfo. Maybe it is not a valid xda file");
         }
     }
 
