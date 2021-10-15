@@ -1,4 +1,4 @@
-package com.founderrd.xda;
+package io.technicrow.xdakit;
 
 /**
  * XDA Exception

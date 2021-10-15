@@ -1,4 +1,4 @@
-package com.founderrd.xda.constant;
+package io.technicrow.xdakit.constant;
 
 public interface ByteWiseComparable {
 
