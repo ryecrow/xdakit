@@ -1,12 +1,15 @@
 package io.technicrow.xdakit;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
-class Utils {
+public class Utils {
+
+    private static final int MAX_STRING_SIZE = 2048;
 
     private Utils() {
         throw new AssertionError("No instance of Utils for you!");
@@ -39,26 +42,51 @@ class Utils {
         return (short) ((b[1] << 8) + (b[0] & 0xff));
     }
 
-    public static String readUTF8(InputStream theStream, int length) throws IOException {
-        byte[] utfString = new byte[length];
-        int temp;
-        boolean valid = false;
-        int i;
-        for (i = 0; i < length; ++i) {
-            temp = theStream.read();
-            if (temp == -1)
-                return null;
-            utfString[i] = (byte) temp;
-            if (utfString[i] == 0) {
-                valid = true;
-                break;
-            }
+    public static long readLong(InputStream in) throws IOException {
+        byte[] b = new byte[8];
+        if (in.read(b) != 8) {
+            throw new IOException("Cannot read long from input stream");
         }
+        return ((long) b[7] << 56) + ((long) b[6] << 48) + ((long) b[5] << 40)
+                + ((long) b[4] << 32) + ((long) b[3] << 24) + ((long) b[2] << 16)
+                + ((long) b[1] << 8) + b[0];
+    }
 
-        if (!valid)
-            return null;
+    public static int readInt(InputStream in) throws IOException {
+        byte[] b = new byte[4];
+        if (in.read(b) != 4) {
+            throw new IOException("Cannot read int from input stream");
+        }
+        return ((b[3] << 24) & 0xff000000) + ((b[2] << 16) & 0x00ff0000)
+                + ((b[1] << 8) & 0x0000ff00) + (b[0] & 0x000000ff);
+    }
 
-        return new String(utfString, 0, i, StandardCharsets.UTF_8);
+    public static short readShort(InputStream in) throws IOException {
+        byte[] b = new byte[2];
+        if (in.read(b) != 2) {
+            throw new IOException("Cannot read short from input stream");
+        }
+        return (short) ((b[1] << 8) + (b[0] & 0xff));
+    }
+
+    public static String readString(InputStream source) throws IOException {
+        boolean valid = false;
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            int i = 0;
+            int b;
+            while ((i < MAX_STRING_SIZE) && ((b = source.read()) != -1)) {
+                if (b == 0) {
+                    valid = true;
+                    break;
+                }
+                baos.write(b);
+                i++;
+            }
+            if (valid) {
+                return new String(baos.toByteArray(), 0, i, StandardCharsets.UTF_8);
+            }
+            throw new IOException("Unfinished string");
+        }
     }
 
     public static BigInteger readBigInteger(InputStream theStream, int bytes)
@@ -76,5 +104,31 @@ class Utils {
         }
 
         return new BigInteger(b);
+    }
+
+    public static long readByBitsParam(RandomAccessFile file, byte bitsParam) throws IOException {
+        switch (bitsParam) {
+            case 0x02:
+                return Utils.readShort(file);
+            case 0x04:
+                return Utils.readInt(file);
+            case 0x08:
+                return Utils.readLong(file);
+            default:
+                throw new IllegalArgumentException("Invalid bitsParam: " + bitsParam);
+        }
+    }
+
+    public static long readByBitsParam(InputStream source, byte bitsParam) throws IOException {
+        switch (bitsParam) {
+            case 0x02:
+                return Utils.readShort(source);
+            case 0x04:
+                return Utils.readInt(source);
+            case 0x08:
+                return Utils.readLong(source);
+            default:
+                throw new IllegalArgumentException("Invalid bitsParam: " + bitsParam);
+        }
     }
 }

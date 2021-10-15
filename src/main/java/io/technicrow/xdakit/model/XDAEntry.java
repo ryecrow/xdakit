@@ -1,6 +1,8 @@
 package io.technicrow.xdakit.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -8,6 +10,8 @@ import java.util.List;
  * An XDA entry
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class XDAEntry {
 
     private Integer index;
@@ -24,7 +28,7 @@ public class XDAEntry {
 
     private byte[] checkSum;
 
-    private int nameTableLength;
+    private Integer nameTableLength;
 
     private Integer nameCount;
 
