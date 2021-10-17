@@ -28,13 +28,7 @@ public class XDADocument implements XDA {
 
     private XDAHeader header;
     private List<XDAEntry> entries;
-    private RandomAccessFile file;
-
-    XDADocument() {
-        this.header = new XDAHeader();
-        this.entries = new LinkedList<>();
-        this.file = null;
-    }
+    private final RandomAccessFile file;
 
     private XDADocument(RandomAccessFile file) throws IOException, XDAException {
         this.file = file;
@@ -108,8 +102,11 @@ public class XDADocument implements XDA {
         long position = header.getFirstEntryOffset();
         for (int i = 0; i < header.getEntryCount(); ++i) {
             XDAEntry entry = parseEntry(i, position);
-            position = entry.getNext();
             xdaEntries.add(entry);
+            position = entry.getNext();
+            if (position == 0) {
+                break;
+            }
         }
         this.entries = xdaEntries;
     }

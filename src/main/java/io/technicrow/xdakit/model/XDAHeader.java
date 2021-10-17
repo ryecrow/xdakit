@@ -1,34 +1,33 @@
 package io.technicrow.xdakit.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Header of an XDA file
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class XDAHeader {
 
-    @Builder.Default
-    private Byte majorVersion = (byte) 0x01;
+    private Byte majorVersion;
 
-    @Builder.Default
-    private Byte minorVersion = (byte) 0x00;
+    private Byte minorVersion;
 
-    @Builder.Default
-    private Integer entryCount = 0;
+    private Integer entryCount;
 
-    @Builder.Default
-    private Byte entryNameTableType = 0x00;
+    private Byte entryNameTableType;
 
-    @Builder.Default
-    private Byte bitsParam = (byte) 0x04;
+    private Byte bitsParam;
 
-    @Builder.Default
-    private Long firstEntryOffset = -1L;
+    private Long firstEntryOffset;
+
+    public XDAHeader() {
+        this.majorVersion = (byte) 0x01;
+        this.minorVersion = (byte) 0x00;
+        this.entryCount = 0;
+        this.entryNameTableType = 0x00;
+        this.bitsParam = (byte) 0x04;
+        this.firstEntryOffset = -1L;
+    }
 }

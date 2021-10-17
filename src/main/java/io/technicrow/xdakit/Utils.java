@@ -1,11 +1,14 @@
 package io.technicrow.xdakit;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 public class Utils {
 
@@ -129,6 +132,27 @@ public class Utils {
                 return Utils.readLong(source);
             default:
                 throw new IllegalArgumentException("Invalid bitsParam: " + bitsParam);
+        }
+    }
+
+    public static String getContentTypeByExtension(String extension) {
+        if (StringUtils.isBlank(extension)) {
+            return null;
+        }
+        switch (extension.toLowerCase(Locale.ROOT)) {
+            case "xml":
+                return "application/xml";
+            case "bmp":
+                return "image/bmp";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "gif":
+                return "image/gif";
+            case "png":
+                return "image/png";
+            default:
+                return "application/octet-stream";
         }
     }
 }
