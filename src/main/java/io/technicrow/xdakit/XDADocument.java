@@ -2,15 +2,15 @@ package io.technicrow.xdakit;
 
 import io.technicrow.xdakit.constant.Operator;
 import io.technicrow.xdakit.model.*;
-import lombok.Value;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.zip.DeflaterInputStream;
 import java.util.zip.InflaterInputStream;
 
 /**
@@ -29,6 +29,9 @@ public class XDADocument implements XDA {
     private XDAHeader header;
     private List<XDAEntry> entries;
     private final RandomAccessFile file;
+
+    private final List<String> paths = new LinkedList<>();
+    private final Map<String, Long> fileToOffsetMap = new HashMap<>();
 
     private XDADocument(RandomAccessFile file) throws IOException, XDAException {
         this.file = file;
@@ -58,6 +61,37 @@ public class XDADocument implements XDA {
     @Override
     public boolean validate() {
         return false;
+    }
+
+    @Override
+    @Nonnull
+    public List<String> listAllFiles() {
+        return Collections.unmodifiableList(paths);
+    }
+
+    @Override
+    public FileStream getFile(@Nonnull String filePath) throws IOException, XDAException {
+        if (!fileToOffsetMap.containsKey(filePath)) {
+            throw new FileNotFoundException(String.format("This XDA file doesn't contain such path: %s", filePath));
+        }
+        long offset = fileToOffsetMap.get(filePath);
+        file.seek(offset);
+        byte checkSum = file.readByte();
+        long length = Utils.readByBitsParam(file, header.getBitsParam());
+        ByteBuffer ecsBuffer = ByteBuffer.allocate(8);
+        byte b;
+        int ecsLength = 0;
+        while (((b = file.readByte()) != (byte) 0xff) && ecsLength < 8) {
+            if (b == 0x00) {
+                throw new XDAException("Invalid ECS value: 0x00");
+            }
+            ecsLength++;
+            ecsBuffer.put(b);
+        }
+        byte[] ecs = new byte[ecsLength];
+        System.arraycopy(ecsBuffer.array(), 0, ecs, 0, ecsLength);
+        return new FileStream(FilenameUtils.getName(filePath),
+                checkSum, length, ecs, readFileData(length, ecs));
     }
 
     @Override
@@ -109,6 +143,7 @@ public class XDADocument implements XDA {
             }
         }
         this.entries = xdaEntries;
+        updateFileToOffsetMap();
     }
 
     private XDAEntry parseEntry(final int index, long position) throws XDAException,
@@ -125,14 +160,16 @@ public class XDADocument implements XDA {
             throw new XDAException("Failed to read checkSum. Actual bytes read: " + actualRead);
         }
         int nameTableLength = Utils.readInt(file);
-        NameTable nameTable = parseNameTable(index, nameTableLength, compress);
+        NameTable nameTable = parseNameTable(nameTableLength, compress);
         int itemListLength = getItemListLength(entryLength, nameTableLength);
         List<Item> itemList = parseItemList(itemListLength, compress, nameTable);
+        file.seek(bsOffset);
+        validateClassType(BIT_STREAM_CLASS_TYPE);
         return new XDAEntry(index, position, entryLength, bsOffset, next, compress, checkSum,
                 nameTableLength, nameTable.getNameCount(), nameTable.getNameMappings(), itemList);
     }
 
-    private NameTable parseNameTable(int index, int length, byte compress) throws IOException, XDAException {
+    private NameTable parseNameTable(int length, byte compress) throws IOException, XDAException {
         byte[] nameTableData = new byte[length];
         int actualRead = file.read(nameTableData);
         if (actualRead != length) {
@@ -153,6 +190,9 @@ public class XDADocument implements XDA {
                 BigInteger nameValue = Utils.readBigInteger(data, NAME_VALUE_LENGTH);
                 String path = Utils.readString(data);
                 nameTable.add(new NameMapping(nameValue, path));
+                if (!paths.contains(path)) {
+                    paths.add(path);
+                }
             }
             return new NameTable(nameCount, nameTable);
         }
@@ -176,7 +216,7 @@ public class XDADocument implements XDA {
         }
     }
 
-    private List<Item> doParseItemList(DataInputStream itemListStream, int size) throws IOException, XDAException {
+    private List<Item> doParseItemList(DataInputStream itemListStream, int size) throws IOException {
         List<Item> itemList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             Item item = parseItem(itemListStream);
@@ -208,6 +248,21 @@ public class XDADocument implements XDA {
         }
     }
 
+    private void updateFileToOffsetMap() {
+        Map<BigInteger, String> nameValues = new HashMap<>();
+        for (XDAEntry entry : entries) {
+            long entryOffset = entry.getBsOffset();
+            for (NameMapping nm : entry.getNameTable()) {
+                nameValues.put(nm.getNameValue(), nm.getPath());
+            }
+            for (Item item : entry.getItemList()) {
+                long fileOffset = item.getItemOffset() + entryOffset;
+                String path = nameValues.get(item.getNameValue());
+                fileToOffsetMap.put(path, fileOffset);
+            }
+        }
+    }
+
     private void validateClassType(byte[] classType) throws IOException, XDAException {
         int length = classType.length;
         byte[] theClassType = new byte[length];
@@ -228,15 +283,26 @@ public class XDADocument implements XDA {
                 - nameTableLength;
     }
 
-    @Value
-    private static class IndexAndNameValue {
-        Integer index;
-        BigInteger nameValue;
-    }
-
-    @Value
-    private static class IndexAndOffset {
-        Integer index;
-        Long offset;
+    private InputStream readFileData(long length, byte[] ecs) throws IOException, XDAException {
+        byte[] fileData = new byte[Math.toIntExact(length)];
+        file.read(fileData);
+        InputStream result = new ByteArrayInputStream(fileData);
+        for (int i = ecs.length - 1; i >= 0; i--) {
+            byte encryption = ecs[i];
+            if (encryption == 0) {
+                continue;
+            }
+            switch (encryption) {
+                case 0x02:
+                    result = new DeflaterInputStream(result);
+                    break;
+                case 0x10:
+                    result = new BZip2CompressorInputStream(result);
+                    break;
+                default:
+                    throw new XDAException("Invalid encryption mark: " + Integer.toHexString(encryption));
+            }
+        }
+        return result;
     }
 }
