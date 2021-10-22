@@ -17,8 +17,9 @@ import java.io.OutputStream;
 @AllArgsConstructor
 public class FileStream implements DataSource {
 
+    @Getter
     @Setter
-    private String name;
+    private String path;
 
     @Getter
     @Setter
@@ -47,11 +48,11 @@ public class FileStream implements DataSource {
 
     @Override
     public String getContentType() {
-        return Utils.getContentTypeByExtension(FilenameUtils.getExtension(name));
+        return Utils.getContentTypeByExtension(FilenameUtils.getExtension(path));
     }
 
     @Override
     public String getName() {
-        return name;
+        return FilenameUtils.getName(path);
     }
 }

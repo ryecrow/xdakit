@@ -2,8 +2,8 @@ package io.technicrow.xdakit;
 
 import io.technicrow.xdakit.constant.Operator;
 import io.technicrow.xdakit.model.*;
+import io.technicrow.xdakit.sxc.SchemaBasedXMLCompressed;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -16,7 +16,7 @@ import java.util.zip.InflaterInputStream;
 /**
  * The XDA Document
  */
-public class XDADocument implements XDA {
+public class XDADocument extends SchemaBasedXMLCompressed implements XDA {
 
     private static final byte[] RIGHTS_INFO = {'@', 'X', 'D', 'A', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final byte[] ENTRY_CLASS_TYPE = {'C', '.', 'E', 'n'};
@@ -25,13 +25,11 @@ public class XDADocument implements XDA {
     private static final int NAME_VALUE_LENGTH = 16;
     private static final byte NAME_TABLE_COMPRESS_MASK = 0x01;
     private static final byte ITEM_LIST_COMPRESS_MASK = 0x02;
-
-    private XDAHeader header;
-    private List<XDAEntry> entries;
     private final RandomAccessFile file;
-
     private final List<String> paths = new LinkedList<>();
     private final Map<String, Long> fileToOffsetMap = new HashMap<>();
+    private XDAHeader header;
+    private List<XDAEntry> entries;
 
     private XDADocument(RandomAccessFile file) throws IOException, XDAException {
         this.file = file;
@@ -90,8 +88,7 @@ public class XDADocument implements XDA {
         }
         byte[] ecs = new byte[ecsLength];
         System.arraycopy(ecsBuffer.array(), 0, ecs, 0, ecsLength);
-        return new FileStream(FilenameUtils.getName(filePath),
-                checkSum, length, ecs, readFileData(length, ecs));
+        return new FileStream(filePath, checkSum, length, ecs, readFileData(length, ecs));
     }
 
     @Override
