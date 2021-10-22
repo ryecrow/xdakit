@@ -1,5 +1,6 @@
 package io.technicrow.xdakit.sxc;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
  * Binary Schema Graph
  */
 @Data
+@AllArgsConstructor
 public class SchemaGraph {
 
     private byte[] fileHeader;

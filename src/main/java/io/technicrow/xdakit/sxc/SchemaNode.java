@@ -2,6 +2,7 @@ package io.technicrow.xdakit.sxc;
 
 import io.technicrow.xdakit.constant.DataType;
 import io.technicrow.xdakit.constant.SchemaType;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
  * Schema Node Information
  */
 @Data
+@Builder
 public class SchemaNode {
 
     private SchemaType schemaNodeType;
