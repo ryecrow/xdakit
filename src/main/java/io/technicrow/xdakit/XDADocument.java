@@ -10,7 +10,6 @@ import java.io.*;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.zip.DeflaterInputStream;
 import java.util.zip.InflaterInputStream;
 
 /**
@@ -291,7 +290,7 @@ public class XDADocument extends SchemaBasedXMLCompressed implements XDA {
             }
             switch (encryption) {
                 case 0x02:
-                    result = new DeflaterInputStream(result);
+                    result = new InflaterInputStream(result);
                     break;
                 case 0x10:
                     result = new BZip2CompressorInputStream(result);
