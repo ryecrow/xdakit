@@ -1,6 +1,7 @@
 package io.technicrow.xdakit.sxc;
 
 import io.technicrow.xdakit.constant.SXCContentAppearance;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.Set;
  * SXC Data Structure
  */
 @Data
+@Builder
 public class SXC {
 
     private Integer versionNo;
