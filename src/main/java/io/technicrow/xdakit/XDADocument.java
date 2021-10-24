@@ -2,7 +2,6 @@ package io.technicrow.xdakit;
 
 import io.technicrow.xdakit.constant.Operator;
 import io.technicrow.xdakit.model.*;
-import io.technicrow.xdakit.sxc.SchemaBasedXMLCompressed;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 import javax.annotation.Nonnull;
@@ -15,7 +14,7 @@ import java.util.zip.InflaterInputStream;
 /**
  * The XDA Document
  */
-public class XDADocument extends SchemaBasedXMLCompressed implements XDA {
+public class XDADocument implements XDA {
 
     private static final byte[] RIGHTS_INFO = {'@', 'X', 'D', 'A', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final byte[] ENTRY_CLASS_TYPE = {'C', '.', 'E', 'n'};

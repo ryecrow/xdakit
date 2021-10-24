@@ -14,12 +14,16 @@ import java.util.List;
 /**
  * Helper class of SXC Binary Schema Graph
  */
-public class SchemaBasedXMLCompressed {
+public final class BinarySchemaGraphHelper {
+
+    private BinarySchemaGraphHelper() {
+        throw new AssertionError("No instance of BinarySchemaGraphHelper for you!");
+    }
 
     private static final int FILE_HEADER_LENGTH = 22;
     private static final int CHECK_INFORMATION_LENGTH = 16;
 
-    protected SchemaGraph parseBSG(InputStream bsgFile) throws IOException, XDAException {
+    public static SchemaGraph parseBSG(InputStream bsgFile) throws IOException, XDAException {
         if (bsgFile == null) {
             return null;
         }
@@ -53,7 +57,7 @@ public class SchemaBasedXMLCompressed {
         }
     }
 
-    private SchemaNode readNode(InputStream bsg) throws IOException, XDAException {
+    private static SchemaNode readNode(InputStream bsg) throws IOException, XDAException {
         SchemaNode.SchemaNodeBuilder builder = new SchemaNode.SchemaNodeBuilder();
         int type = bsg.read();
         SchemaType schemaType = SchemaType.ofType((byte) type);
