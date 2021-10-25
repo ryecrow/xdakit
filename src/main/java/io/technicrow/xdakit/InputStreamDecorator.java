@@ -68,11 +68,6 @@ public class InputStreamDecorator extends InputStream {
     }
 
     @Override
-    public void skipNBytes(long n) throws IOException {
-        source.skipNBytes(n);
-    }
-
-    @Override
     public int available() throws IOException {
         return source.available();
     }

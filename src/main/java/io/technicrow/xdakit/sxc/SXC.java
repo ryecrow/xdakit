@@ -19,25 +19,35 @@ public class SXC {
 
     private Set<SXCContentAppearance> contentAppearanceInformation;
 
-    private Integer namespaceInformationOffset;
+    @Builder.Default
+    private Integer namespaceInformationOffset = 0;
 
-    private Integer namespaceInformationLength;
+    @Builder.Default
+    private Integer namespaceInformationLength = 0;
 
-    private Integer dictionaryOffset;
+    @Builder.Default
+    private Integer dictionaryOffset = 0;
 
-    private Integer dictionaryLength;
+    @Builder.Default
+    private Integer dictionaryLength = 0;
 
-    private Integer structureDataOffset;
+    @Builder.Default
+    private Integer structureDataOffset = 0;
 
-    private Integer structureDataLength;
+    @Builder.Default
+    private Integer structureDataLength = 0;
 
-    private Integer dataContainersOffset;
+    @Builder.Default
+    private Integer dataContainersOffset = 0;
 
-    private Integer dataContainersLength;
+    @Builder.Default
+    private Integer dataContainersLength = 0;
 
-    private Integer dataContainersMapOffset;
+    @Builder.Default
+    private Integer dataContainersMapOffset = 0;
 
-    private Integer dataContainersMapLength;
+    @Builder.Default
+    private Integer dataContainersMapLength = 0;
 
     /**
      * @deprecated not implemented yet
@@ -53,7 +63,7 @@ public class SXC {
 
     private StructureData structureData;
 
-    private Object DataContainers;
+    private Object dataContainers;
 
     private DataContainersMap dataContainersMap;
 }

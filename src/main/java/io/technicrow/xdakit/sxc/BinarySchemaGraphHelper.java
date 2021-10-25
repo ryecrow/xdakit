@@ -57,7 +57,7 @@ public final class BinarySchemaGraphHelper {
         }
     }
 
-    private static SchemaNode readNode(InputStream bsg) throws IOException, XDAException {
+    public static SchemaNode readNode(InputStream bsg) throws IOException, XDAException {
         SchemaNode.SchemaNodeBuilder builder = new SchemaNode.SchemaNodeBuilder();
         int type = bsg.read();
         SchemaType schemaType = SchemaType.ofType((byte) type);
