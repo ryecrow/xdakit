@@ -2,7 +2,6 @@ package io.technicrow.xdakit;
 
 import io.technicrow.xdakit.constant.Operator;
 import io.technicrow.xdakit.model.*;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -282,22 +281,6 @@ public class XDADocument implements XDA {
         byte[] fileData = new byte[Math.toIntExact(length)];
         file.read(fileData);
         InputStream result = new ByteArrayInputStream(fileData);
-        for (int i = ecs.length - 1; i >= 0; i--) {
-            byte encryption = ecs[i];
-            if (encryption == 0) {
-                continue;
-            }
-            switch (encryption) {
-                case 0x02:
-                    result = new InflaterInputStream(result);
-                    break;
-                case 0x10:
-                    result = new BZip2CompressorInputStream(result);
-                    break;
-                default:
-                    throw new XDAException("Invalid encryption mark: " + Integer.toHexString(encryption));
-            }
-        }
-        return result;
+        return new InputStreamDecorator(result, ecs);
     }
 }
