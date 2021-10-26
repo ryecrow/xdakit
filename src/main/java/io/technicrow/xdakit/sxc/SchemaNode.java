@@ -14,6 +14,8 @@ import java.util.List;
 @Builder
 public class SchemaNode {
 
+    private Integer index;
+
     private SchemaType schemaNodeType;
 
     private Integer schemaNodeNameLength;

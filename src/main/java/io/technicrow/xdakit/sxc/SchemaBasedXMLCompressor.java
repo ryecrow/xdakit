@@ -5,10 +5,9 @@ import io.technicrow.xdakit.Utils;
 import io.technicrow.xdakit.XDAException;
 import io.technicrow.xdakit.constant.SXCContentAppearance;
 import org.apache.commons.io.input.NullInputStream;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -26,6 +25,8 @@ public class SchemaBasedXMLCompressor implements AutoCloseable {
     private final InputStream source;
     private final SchemaGraph bsg;
 
+    private SXC sxc;
+
     public SchemaBasedXMLCompressor(InputStream source, SchemaGraph bsg) throws IOException, XDAException {
         this.source = source;
         this.bsg = bsg;
@@ -37,6 +38,10 @@ public class SchemaBasedXMLCompressor implements AutoCloseable {
         if (((source.read(fh) != SXC_HEADER.length) || !Arrays.equals(fh, SXC_HEADER))) {
             throw new XDAException("Incorrect SXC header");
         }
+    }
+
+    public SXC getSxc() {
+        return sxc;
     }
 
     public void readSXC() throws IOException, XDAException {
@@ -68,13 +73,12 @@ public class SchemaBasedXMLCompressor implements AutoCloseable {
             builder.dataContainersMapOffset(Utils.readInt(source));
             builder.dataContainersMapLength(Utils.readInt(source));
         }
-        SXC sxc = builder.build();
-        readNamespaceInformation(sxc);
-        readDictionary(sxc);
-        readStructuredDataInformation(sxc);
-        readDataContainers(sxc);
-        readDataContainersMap(sxc);
-        System.out.println(sxc);
+        this.sxc = builder.build();
+        readNamespaceInformation();
+        readDictionary();
+        readStructuredDataInformation();
+        readDataContainers();
+        readDataContainersMap();
     }
 
     private Set<SXCContentAppearance> listAppearance(byte appearanceInfo) {
@@ -96,47 +100,41 @@ public class SchemaBasedXMLCompressor implements AutoCloseable {
         return appearances;
     }
 
-    private void readNamespaceInformation(SXC sxc) throws IOException, XDAException {
-        int offset = sxc.getNamespaceInformationOffset();
-        if (offset == 0) {
-            return;
-        }
-        try (InputStream in = readData((sxc.getCompressMethod() == 1), sxc.getNamespaceInformationLength(), source)) {
-
-        }
+    private void readNamespaceInformation() {
+        // NamespaceInformation not implemented yet
     }
 
-    private void readDictionary(SXC sxc) throws IOException, XDAException {
-        int offset = sxc.getDictionaryOffset();
-        if (offset == 0) {
-            return;
-        }
-        try (InputStream in = readData((sxc.getCompressMethod() == 1), sxc.getDictionaryLength(), source)) {
-
-        }
+    private void readDictionary() {
+        // Dictionary not implemented yet
     }
 
-    private void readStructuredDataInformation(SXC sxc) throws IOException, XDAException {
+    private void readStructuredDataInformation() throws IOException, XDAException {
         int offset = sxc.getStructureDataOffset();
         if (offset == 0) {
             return;
         }
-        try (InputStream in = readData((sxc.getCompressMethod() == 1), sxc.getStructureDataLength(), source)) {
+        try (InputStream in = readData((sxc.getCompressMethod() == 0), sxc.getStructureDataLength(), source)) {
 
         }
     }
 
-    private void readDataContainers(SXC sxc) throws IOException, XDAException {
+    private void readDataContainers() throws IOException, XDAException {
         int offset = sxc.getDataContainersOffset();
         if (offset == 0) {
             return;
         }
-        try (InputStream in = readData((sxc.getCompressMethod() == 1), sxc.getDataContainersLength(), source)) {
-
+        List<String> dc = new LinkedList<>();
+        sxc.setDataContainers(dc);
+        try (InputStream in = readData((sxc.getCompressMethod() == 0), sxc.getDataContainersLength(), source);
+             BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                dc.addAll(Arrays.asList(StringUtils.split(line, '\u0000')));
+            }
         }
     }
 
-    private void readDataContainersMap(SXC sxc) throws IOException, XDAException {
+    private void readDataContainersMap() throws IOException, XDAException {
         int offset = sxc.getDataContainersMapOffset();
         if (offset == 0) {
             return;
@@ -171,7 +169,7 @@ public class SchemaBasedXMLCompressor implements AutoCloseable {
     }
 
     private CombinedDataContainerEntry readCombinedEntry(InputStream mapData) throws IOException {
-        int count =  Utils.readInt(mapData);
+        int count = Utils.readInt(mapData);
         int length = Utils.readInt(mapData);
         List<DataContainerEntry> entries = new LinkedList<>();
         for (int i = 0; i < count; i++) {

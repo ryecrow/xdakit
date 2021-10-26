@@ -4,6 +4,7 @@ import io.technicrow.xdakit.constant.SXCContentAppearance;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -63,7 +64,7 @@ public class SXC {
 
     private StructureData structureData;
 
-    private Object dataContainers;
+    private List<String> dataContainers;
 
     private DataContainersMap dataContainersMap;
 }
