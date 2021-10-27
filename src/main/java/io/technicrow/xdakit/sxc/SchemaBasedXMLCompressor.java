@@ -113,7 +113,8 @@ public class SchemaBasedXMLCompressor implements AutoCloseable {
         if (offset == 0) {
             return;
         }
-        try (InputStream in = readData((sxc.getCompressMethod() == 0), sxc.getStructureDataLength(), source)) {
+        try (InputStream in = readData((sxc.getCompressMethod() == 0), sxc.getStructureDataLength(), source);
+             BitwiseEncodedData bed = new BitwiseEncodedData(in)) {
 
         }
     }
